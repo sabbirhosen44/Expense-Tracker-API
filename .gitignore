@@ -1,0 +1,61 @@
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor backups
+*~
+*.swp
+*.swo
+
+# IDE directories
+.vscode/
+.idea/
+*.iml
+
+# Binaries and build output
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+/bin/
+/build/
+/dist/
+expense-tracker.exe
+
+# Go object files, package directories
+/pkg/
+*.o
+*.a
+
+# Vendor directory
+/vendor/
+
+# Test, coverage, and profiling
+coverage.out
+*.coverprofile
+*.out
+
+# Logs and temp files
+*.log
+/tmp/
+*.tmp
+
+# Environment and secrets
+.env
+.env.*
+*.key
+*.pem
+
+# Database files
+*.db
+*.sqlite3
+
+# Local configuration
+/conf/app.conf
+
+# Project data files
+data/*.json
+routers/commentsRouter.go
+

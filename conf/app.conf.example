@@ -1,0 +1,10 @@
+# Copy this file to conf/app.conf and fill in your local values.
+
+appname = expense-tracker
+httpport = 8080
+runmode = dev
+copyrequestbody = true
+
+users_csv = data/users.csv
+expenses_csv = data/expenses.csv
+
