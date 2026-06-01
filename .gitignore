@@ -23,6 +23,7 @@ desktop.ini
 /build/
 /dist/
 expense-tracker.exe
+Expense-Tracker-API
 
 # Go object files, package directories
 /pkg/

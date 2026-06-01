@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/csv"
 	"encoding/hex"
+	"errors"
 	"os"
 	"strconv"
 	"strings"
@@ -139,6 +140,21 @@ func GetUserByEmail(email string) (*User, error) {
 	return nil, nil
 }
 
+// GetUserByID finds a user by ID. Returns nil if not found.
+func GetUserByID(id int) (*User, error) {
+	users, err := GetAllUsers()
+	if err != nil {
+		return nil, err
+	}
+	for _, u := range users {
+		if u.ID == id {
+			copy := u
+			return &copy, nil
+		}
+	}
+	return nil, nil
+}
+
 // CreateUser appends a new user to the CSV file
 func CreateUser(user *User) error {
 	mu.Lock()
@@ -206,3 +222,6 @@ func GetNextUserID() int {
 	defer mu.Unlock()
 	return GetNextUserIDInternal()
 }
+
+// ErrUserNotFound is returned when a user lookup fails.
+var ErrUserNotFound = errors.New("user not found")
