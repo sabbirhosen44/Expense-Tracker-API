@@ -1,5 +1,4 @@
-id, user_id, title                , amount  , category , note                       , expense_date, created_at
- 1,       1, Online Course        ,  2500.00, Education, Go Programming masterclass , 2026-05-25  , 2026-06-01T11:43:19Z
- 2,       1, Grocery Shopping     ,   250.75, Food     , Weekly supplies from market, 2026-06-01  , 2026-06-01T11:43:28Z
- 3,       1, New Laptop Monitor   , 18500.00, Shopping , Office setup upgrade       , 2026-06-01  , 2026-06-01T11:58:09Z
- 4,       1, Internet Subscription,  1200.00, Utilities, Monthly fiber bill         , 2026-06-01  , 2026-06-01T11:58:23Z
+id,user_id,title,amount,category,note,expense_date,created_at
+1,1,Online Course,2500.00,Education,Go Programming masterclass,2026-05-25,2026-06-01T11:43:19Z
+3,1,New Laptop Monitor,18500.00,Shopping,Office setup upgrade,2026-06-01,2026-06-01T11:58:09Z
+4,1,Internet Subscription,1200.00,Utilities,Monthly fiber bill,2026-06-01,2026-06-01T11:58:23Z

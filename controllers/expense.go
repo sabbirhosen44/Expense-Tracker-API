@@ -287,3 +287,27 @@ func (c *ExpenseController) DeleteExpense() {
 	logs.Info("DeleteExpense: deleted id=", id, " for user=", userID)
 	c.respondOK("Expense deleted successfully", nil)
 }
+
+func (c *ExpenseController) GetSummary() {
+	userID := c.Ctx.Input.GetData("userID").(int)
+	if userID == 0 {
+		return
+	}
+
+	dateFrom := c.GetString("date_from")
+	dateTo := c.GetString("date_to")
+
+	// Only validate if they are provided
+	if (dateFrom != "" && !isValidDate(dateFrom)) || (dateTo != "" && !isValidDate(dateTo)) {
+		c.respondBadRequest("Invalid date format. Use YYYY-MM-DD")
+		return
+	}
+
+	summary, err := models.GetExpenseSummary(userID, dateFrom, dateTo)
+	if err != nil {
+		c.respondInternalError("Failed to generate summary")
+		return
+	}
+
+	c.respondOK("Summary generated", summary)
+}

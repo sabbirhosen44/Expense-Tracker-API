@@ -36,6 +36,15 @@ type CategorySummary struct {
 	Count    int     `json:"count"`
 }
 
+// ExpenseSummary is the response payload for the summary endpoint.
+type ExpenseSummary struct {
+	DateFrom    string            `json:"date_from,omitempty"`
+	DateTo      string            `json:"date_to,omitempty"`
+	TotalAmount float64           `json:"total_amount"`
+	TotalCount  int               `json:"total_count"`
+	ByCategory  []CategorySummary `json:"by_category"`
+}
+
 // FilterExpensesParams holds optional filter and sort parameters.
 type FilterExpensesParams struct {
 	Category  string
@@ -139,28 +148,28 @@ func readAllExpenses() ([]Expense, error) {
 
 	var expenses []Expense
 	for i, r := range records {
-		if i == 0 || len(r) == 0 {
+		if i == 0 || len(r) < 8 {
 			continue
 		}
 
-		// Trim and parse the ID
-		id, err := strconv.Atoi(strings.TrimSpace(r[0]))
+		id, _ := strconv.Atoi(strings.TrimSpace(r[0]))
+		userID, _ := strconv.Atoi(strings.TrimSpace(r[1]))
+
+		// Trim space before parsing to avoid 0 values
+		amount, err := strconv.ParseFloat(strings.TrimSpace(r[3]), 64)
 		if err != nil {
 			continue
 		}
 
-		userID, _ := strconv.Atoi(strings.TrimSpace(r[1]))
-		amount, _ := strconv.ParseFloat(r[3], 64)
-
 		expenses = append(expenses, Expense{
 			ID:          id,
 			UserID:      userID,
-			Title:       r[2],
+			Title:       strings.TrimSpace(r[2]),
 			Amount:      amount,
-			Category:    r[4],
-			Note:        r[5],
-			ExpenseDate: r[6],
-			CreatedAt:   r[7],
+			Category:    strings.TrimSpace(r[4]),
+			Note:        strings.TrimSpace(r[5]),
+			ExpenseDate: strings.TrimSpace(r[6]),
+			CreatedAt:   strings.TrimSpace(r[7]),
 		})
 	}
 	return expenses, nil
@@ -356,4 +365,54 @@ func FilterExpenses(userID int, params FilterExpensesParams) ([]Expense, error) 
 	}
 
 	return expenses, nil
+}
+
+// GetExpenseSummary computes totals grouped by category for a date range.
+func GetExpenseSummary(userID int, dateFrom, dateTo string) (*ExpenseSummary, error) {
+	expenses, err := GetExpensesByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	categoryTotals := make(map[string]float64)
+	categoryCounts := make(map[string]int)
+	var totalAmount float64
+	var totalCount int
+
+	for _, e := range expenses {
+		// Date filtering logic
+		if dateFrom != "" && e.ExpenseDate < dateFrom {
+			continue
+		}
+		if dateTo != "" && e.ExpenseDate > dateTo {
+			continue
+		}
+
+		categoryTotals[e.Category] += e.Amount
+		categoryCounts[e.Category]++
+		totalAmount += e.Amount
+		totalCount++
+	}
+
+	var byCategory []CategorySummary
+	for cat, total := range categoryTotals {
+		byCategory = append(byCategory, CategorySummary{
+			Category: cat,
+			Total:    total,
+			Count:    categoryCounts[cat],
+		})
+	}
+
+	// Sort by total amount descending
+	sort.Slice(byCategory, func(i, j int) bool {
+		return byCategory[i].Total > byCategory[j].Total
+	})
+
+	return &ExpenseSummary{
+		DateFrom:    dateFrom,
+		DateTo:      dateTo,
+		TotalAmount: totalAmount,
+		TotalCount:  totalCount,
+		ByCategory:  byCategory,
+	}, nil
 }
