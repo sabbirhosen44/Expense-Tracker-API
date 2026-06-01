@@ -56,6 +56,4 @@ coverage.out
 /conf/app.conf
 
 # Project data files
-data/*.json
 routers/commentsRouter.go
-

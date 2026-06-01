@@ -7,4 +7,3 @@ copyrequestbody = true
 
 users_csv = data/users.csv
 expenses_csv = data/expenses.csv
-
