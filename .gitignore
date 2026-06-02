@@ -57,4 +57,7 @@ coverage.out
 /conf/app.conf
 
 # Project data files
-routers/commentsRouter.goswagger/
+routers/commentsRouter
+.goswagger/
+swagger/
+routers/data

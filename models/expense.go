@@ -291,7 +291,6 @@ func FilterExpenses(userID int, params FilterExpensesParams) ([]Expense, error) 
 		return nil, err
 	}
 
-	// Data Normalization: Trim all strings in retrieved expenses
 	for i := range expenses {
 		expenses[i].Title = strings.TrimSpace(expenses[i].Title)
 		expenses[i].Category = strings.TrimSpace(expenses[i].Category)
@@ -299,7 +298,6 @@ func FilterExpenses(userID int, params FilterExpensesParams) ([]Expense, error) 
 		expenses[i].ExpenseDate = strings.TrimSpace(expenses[i].ExpenseDate)
 	}
 
-	// Filter by Category
 	if cat := strings.TrimSpace(params.Category); cat != "" {
 		var filtered []Expense
 		for _, e := range expenses {
@@ -310,7 +308,6 @@ func FilterExpenses(userID int, params FilterExpensesParams) ([]Expense, error) 
 		expenses = filtered
 	}
 
-	// Filter by Date Range (YYYY-MM-DD comparison)
 	if from := strings.TrimSpace(params.DateFrom); from != "" {
 		var filtered []Expense
 		for _, e := range expenses {
@@ -330,7 +327,6 @@ func FilterExpenses(userID int, params FilterExpensesParams) ([]Expense, error) 
 		expenses = filtered
 	}
 
-	// Sorting
 	if params.SortBy != "" {
 		sort.Slice(expenses, func(i, j int) bool {
 			var less bool
@@ -348,20 +344,9 @@ func FilterExpenses(userID int, params FilterExpensesParams) ([]Expense, error) 
 			return !less
 		})
 	} else {
-		// Default: newest first
 		sort.Slice(expenses, func(i, j int) bool {
 			return expenses[i].ExpenseDate > expenses[j].ExpenseDate
 		})
-	}
-
-	// Pagination
-	total := len(expenses)
-	if params.Offset >= total {
-		return []Expense{}, nil
-	}
-	expenses = expenses[params.Offset:]
-	if params.Limit > 0 && params.Limit < len(expenses) {
-		expenses = expenses[:params.Limit]
 	}
 
 	return expenses, nil

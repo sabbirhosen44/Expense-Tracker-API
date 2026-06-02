@@ -31,6 +31,14 @@ type expenseResponse struct {
 	ExpenseDate string  `json:"expense_date"`
 }
 
+type PaginatedResponse struct {
+	Expenses    []expenseResponse `json:"expenses"`
+	TotalItems  int               `json:"total_items"`
+	TotalPages  int               `json:"total_pages"`
+	CurrentPage int               `json:"current_page"`
+	Limit       int               `json:"limit"`
+}
+
 func toExpenseResponse(e models.Expense) expenseResponse {
 	return expenseResponse{
 		ID:          e.ID,
@@ -144,22 +152,18 @@ func (c *ExpenseController) ListExpenses() {
 		SortOrder: c.GetString("sort_order"),
 	}
 
-	// Validate sort_by value
 	if params.SortBy != "" && params.SortBy != "amount" && params.SortBy != "expense_date" {
 		c.respondBadRequest("sort_by must be 'amount' or 'expense_date'")
 		return
 	}
-	// Validate sort_order value
 	if params.SortOrder != "" && params.SortOrder != "asc" && params.SortOrder != "desc" {
 		c.respondBadRequest("sort_order must be 'asc' or 'desc'")
 		return
 	}
-	// Default sort order
 	if params.SortOrder == "" {
 		params.SortOrder = "desc"
 	}
 
-	// Validate date params
 	if params.DateFrom != "" && !isValidDate(params.DateFrom) {
 		c.respondBadRequest("date_from must be in YYYY-MM-DD format")
 		return
@@ -169,7 +173,6 @@ func (c *ExpenseController) ListExpenses() {
 		return
 	}
 
-	// Pagination
 	limit, _ := c.GetInt("limit", 10)
 	offset, _ := c.GetInt("offset", 0)
 	if limit <= 0 || limit > 100 {
@@ -181,21 +184,42 @@ func (c *ExpenseController) ListExpenses() {
 	params.Limit = limit
 	params.Offset = offset
 
-	expenses, err := models.FilterExpenses(userID, params)
+	fullList, err := models.FilterExpenses(userID, params)
 	if err != nil {
 		logs.Error("ListExpenses: error:", err)
 		return
 	}
 
+	totalItems := len(fullList)
+	totalPages := (totalItems + limit - 1) / limit
+	currentPage := (offset / limit) + 1
+
+	start := offset
+	if start > totalItems {
+		start = totalItems
+	}
+	end := start + limit
+	if end > totalItems {
+		end = totalItems
+	}
+
+	pageData := fullList[start:end]
+
 	var result []expenseResponse
-	for _, e := range expenses {
+	for _, e := range pageData {
 		result = append(result, toExpenseResponse(e))
 	}
 	if result == nil {
 		result = []expenseResponse{}
 	}
 
-	c.respondOK("Expenses retrieved", result)
+	c.respondOK("Expenses retrieved", PaginatedResponse{
+		Expenses:    result,
+		TotalItems:  totalItems,
+		TotalPages:  totalPages,
+		CurrentPage: currentPage,
+		Limit:       limit,
+	})
 }
 
 // @Summary Get expense by ID

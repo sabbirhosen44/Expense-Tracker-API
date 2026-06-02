@@ -260,10 +260,27 @@ func TestListExpenses(t *testing.T) {
 
 			if tt.checkCount && tt.wantStatus == http.StatusOK {
 				var resp map[string]interface{}
-				json.NewDecoder(w.Body).Decode(&resp)
-				data := resp["data"].([]interface{})
-				if len(data) != tt.expectedCount {
-					t.Errorf("expected %d items, got %d", tt.expectedCount, len(data))
+
+				if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+					t.Fatal(err)
+				}
+
+				data, ok := resp["data"].(map[string]interface{})
+				if !ok {
+					t.Fatalf("expected data object, got %T", resp["data"])
+				}
+
+				expenses, ok := data["expenses"].([]interface{})
+				if !ok {
+					t.Fatalf("expected expenses array, got %T", data["expenses"])
+				}
+
+				if len(expenses) != tt.expectedCount {
+					t.Errorf(
+						"expected %d items, got %d",
+						tt.expectedCount,
+						len(expenses),
+					)
 				}
 			}
 		})

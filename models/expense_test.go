@@ -465,69 +465,105 @@ func TestFilterExpenses(t *testing.T) {
 			name: "by category",
 			setup: func(t *testing.T) {
 				CreateExpense(sampleExpense(1))
-				CreateExpense(&Expense{UserID: 1, Title: "Bus", Amount: 5, Category: "Transport", ExpenseDate: "2024-06-01"})
+				CreateExpense(&Expense{
+					UserID:      1,
+					Title:       "Bus",
+					Amount:      5,
+					Category:    "Transport",
+					ExpenseDate: "2024-06-01",
+				})
 			},
-			params:        FilterExpensesParams{Category: "Food", Limit: 10},
+			params:        FilterExpensesParams{Category: "Food"},
 			expectedCount: 1,
 			checkTitle:    "Lunch",
 		},
 		{
 			name: "by date from",
 			setup: func(t *testing.T) {
-				CreateExpense(&Expense{UserID: 1, Title: "Old", Amount: 5, Category: "Food", ExpenseDate: "2024-01-01"})
-				CreateExpense(&Expense{UserID: 1, Title: "New", Amount: 5, Category: "Food", ExpenseDate: "2024-06-01"})
+				CreateExpense(&Expense{
+					UserID:      1,
+					Title:       "Old",
+					Amount:      5,
+					Category:    "Food",
+					ExpenseDate: "2024-01-01",
+				})
+				CreateExpense(&Expense{
+					UserID:      1,
+					Title:       "New",
+					Amount:      5,
+					Category:    "Food",
+					ExpenseDate: "2024-06-01",
+				})
 			},
-			params:        FilterExpensesParams{DateFrom: "2024-03-01", Limit: 10},
+			params:        FilterExpensesParams{DateFrom: "2024-03-01"},
 			expectedCount: 1,
 			checkTitle:    "New",
 		},
 		{
 			name: "by date to",
 			setup: func(t *testing.T) {
-				CreateExpense(&Expense{UserID: 1, Title: "Old", Amount: 5, Category: "Food", ExpenseDate: "2024-01-01"})
-				CreateExpense(&Expense{UserID: 1, Title: "New", Amount: 5, Category: "Food", ExpenseDate: "2024-06-01"})
+				CreateExpense(&Expense{
+					UserID:      1,
+					Title:       "Old",
+					Amount:      5,
+					Category:    "Food",
+					ExpenseDate: "2024-01-01",
+				})
+				CreateExpense(&Expense{
+					UserID:      1,
+					Title:       "New",
+					Amount:      5,
+					Category:    "Food",
+					ExpenseDate: "2024-06-01",
+				})
 			},
-			params:        FilterExpensesParams{DateTo: "2024-03-01", Limit: 10},
+			params:        FilterExpensesParams{DateTo: "2024-03-01"},
 			expectedCount: 1,
 			checkTitle:    "Old",
 		},
 		{
 			name: "sort by amount asc",
 			setup: func(t *testing.T) {
-				CreateExpense(&Expense{UserID: 1, Title: "Cheap", Amount: 5, Category: "Food", ExpenseDate: "2024-06-01"})
-				CreateExpense(&Expense{UserID: 1, Title: "Expensive", Amount: 100, Category: "Food", ExpenseDate: "2024-06-02"})
+				CreateExpense(&Expense{
+					UserID:      1,
+					Title:       "Cheap",
+					Amount:      5,
+					Category:    "Food",
+					ExpenseDate: "2024-06-01",
+				})
+				CreateExpense(&Expense{
+					UserID:      1,
+					Title:       "Expensive",
+					Amount:      100,
+					Category:    "Food",
+					ExpenseDate: "2024-06-02",
+				})
 			},
-			params:        FilterExpensesParams{SortBy: "amount", SortOrder: "asc", Limit: 10},
+			params:        FilterExpensesParams{SortBy: "amount", SortOrder: "asc"},
 			expectedCount: 2,
 			checkOrder:    true,
 		},
 		{
 			name: "sort by amount desc",
 			setup: func(t *testing.T) {
-				CreateExpense(&Expense{UserID: 1, Title: "Cheap", Amount: 5, Category: "Food", ExpenseDate: "2024-06-01"})
-				CreateExpense(&Expense{UserID: 1, Title: "Expensive", Amount: 100, Category: "Food", ExpenseDate: "2024-06-02"})
+				CreateExpense(&Expense{
+					UserID:      1,
+					Title:       "Cheap",
+					Amount:      5,
+					Category:    "Food",
+					ExpenseDate: "2024-06-01",
+				})
+				CreateExpense(&Expense{
+					UserID:      1,
+					Title:       "Expensive",
+					Amount:      100,
+					Category:    "Food",
+					ExpenseDate: "2024-06-02",
+				})
 			},
-			params:        FilterExpensesParams{SortBy: "amount", SortOrder: "desc", Limit: 10},
+			params:        FilterExpensesParams{SortBy: "amount", SortOrder: "desc"},
 			expectedCount: 2,
 			checkOrder:    true,
-		},
-		{
-			name: "pagination limit",
-			setup: func(t *testing.T) {
-				for i := 0; i < 5; i++ {
-					CreateExpense(sampleExpense(1))
-				}
-			},
-			params:        FilterExpensesParams{Limit: 2, Offset: 0},
-			expectedCount: 2,
-		},
-		{
-			name: "offset beyond total",
-			setup: func(t *testing.T) {
-				CreateExpense(sampleExpense(1))
-			},
-			params:        FilterExpensesParams{Limit: 10, Offset: 100},
-			expectedCount: 0,
 		},
 	}
 
@@ -544,6 +580,7 @@ func TestFilterExpenses(t *testing.T) {
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
+
 			if len(results) != tt.expectedCount {
 				t.Errorf("expected %d results, got %d", tt.expectedCount, len(results))
 			}
@@ -555,11 +592,15 @@ func TestFilterExpenses(t *testing.T) {
 			}
 
 			if tt.checkOrder && len(results) >= 2 {
-				if tt.name == "sort by amount asc" && results[0].Amount > results[1].Amount {
-					t.Error("expected ascending sort by amount")
-				}
-				if tt.name == "sort by amount desc" && results[0].Amount < results[1].Amount {
-					t.Error("expected descending sort by amount")
+				switch tt.name {
+				case "sort by amount asc":
+					if results[0].Amount > results[1].Amount {
+						t.Error("expected ascending sort by amount")
+					}
+				case "sort by amount desc":
+					if results[0].Amount < results[1].Amount {
+						t.Error("expected descending sort by amount")
+					}
 				}
 			}
 		})

@@ -7,144 +7,280 @@ A lightweight expense tracker REST API built with Go and [Beego](https://beego.m
 - [Overview](#overview)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
-- [Quick Start](#quick-start)
+- [Installation & Setup](#installation--setup)
 - [Configuration](#configuration)
-- [Swagger UI](#swagger-ui)
+- [Running the Server](#running-the-server)
+- [Running Tests](#running-tests)
+- [Swagger Documentation](#swagger-documentation)
 - [API Reference](#api-reference)
 - [Folder Structure](#folder-structure)
 - [Notes](#notes)
+
+---
 
 ## Overview
 
 This API supports:
 
-- user registration and login
-- expense creation, listing, updating, deletion
-- expense summary reporting
-- filter, sort, and paginate expense results
+- User registration and login
+- Expense creation, listing, updating, and deletion
+- Expense summary reporting
+- Filter, sort, and paginate expense results
 - CSV-backed storage for users and expenses
+
+---
 
 ## Features
 
-- `GET /api/v1/health`
-- `POST /api/v1/auth/register`
-- `POST /api/v1/auth/login`
-- `POST /api/v1/expenses`
-- `GET /api/v1/expenses`
-- `GET /api/v1/expenses/{id}`
-- `PUT /api/v1/expenses/{id}`
-- `DELETE /api/v1/expenses/{id}`
-- `GET /api/v1/summary`
+| Method | Endpoint                | Description         |
+| ------ | ----------------------- | ------------------- |
+| GET    | `/api/v1/health`        | Health check        |
+| POST   | `/api/v1/auth/register` | Register a new user |
+| POST   | `/api/v1/auth/login`    | Login               |
+| POST   | `/api/v1/expenses`      | Create an expense   |
+| GET    | `/api/v1/expenses`      | List expenses       |
+| GET    | `/api/v1/expenses/{id}` | Get expense by ID   |
+| PUT    | `/api/v1/expenses/{id}` | Update an expense   |
+| DELETE | `/api/v1/expenses/{id}` | Delete an expense   |
+| GET    | `/api/v1/summary`       | Expense summary     |
+
+---
 
 ## Prerequisites
 
-- Go 1.26 or later
-- `bee` CLI
+- **Go 1.21** or later
+- **Beego `bee` CLI** — used to run the server, hot-reload, and generate Swagger docs
 
-## Quick Start
+---
 
-Install dependencies:
+## Installation & Setup
+
+**1. Clone the repository**
+
+```bash
+git clone https://github.com/sabbirhosen44/Expense-Tracker-API.git
+cd Expense-Tracker-API
+```
+
+**2. Install Go dependencies**
 
 ```bash
 go mod tidy
 ```
 
-Install the Beego CLI if you do not have it already:
+**3. Install the Beego `bee` CLI**
 
 ```bash
 go install github.com/beego/bee/v2@latest
 ```
 
-Generate Swagger docs once before the first run:
+Make sure `$GOPATH/bin` (or `$HOME/go/bin`) is in your `PATH`:
+
+```bash
+export PATH=$PATH:$(go env GOPATH)/bin
+```
+
+Verify the installation:
+
+```bash
+bee version
+```
+
+**4. Set up configuration**
+
+Copy the example config and update values as needed:
+
+```bash
+cp conf/app.conf.example conf/app.conf
+```
+
+Key values in `conf/app.conf`:
+
+```ini
+httpport     = 8080
+runmode      = dev
+users_csv    = data/users.csv
+expenses_csv = data/expenses.csv
+```
+
+**5. Generate Swagger docs**
+
+This step is required before the first run:
 
 ```bash
 bee generate docs
 ```
 
-Run the service:
+---
+
+## Running the Server
+
+Start the server with hot-reload using `bee run`:
 
 ```bash
-go run main.go
+bee run
 ```
 
-The server listens on port `8080` by default.
+The server starts on **http://localhost:8080** by default. `bee run` watches for file changes and automatically restarts the server.
 
-## Swagger UI
+To run without hot-reload:
 
-Application settings are stored in `conf/app.conf`.
+```bash
+bee run -runmode=prod
+```
 
-Important values:
+---
 
-- `httpport = 8080`
-- `runmode = dev`
-- `users_csv = data/users.csv`
-- `expenses_csv = data/expenses.csv`
+## Running Tests
 
-## Swagger UI
+Run all tests across the project:
 
-Interactive API docs are served from:
+```bash
+bee test ./...
+```
 
-- `http://localhost:8080/swagger`
+Or use the standard Go test runner:
 
-Raw spec files are available at:
+```bash
+go test ./...
+```
 
-- `http://localhost:8080/swagger/swagger.json`
-- `http://localhost:8080/swagger/swagger.yml`
+Run tests for a specific package:
 
-### Regenerating docs after controller changes
+```bash
+# Controllers
+go test ./controllers/...
 
-Swagger docs are generated from controller annotations. When you change or add API comments in `controllers/*.go`, run:
+# Models
+go test ./models/...
+
+# Middlewares
+go test ./middlewares/...
+
+# Routers
+go test ./routers/...
+```
+
+Run tests with verbose output:
+
+```bash
+go test -v ./...
+```
+
+Run tests with coverage report:
+
+```bash
+go test -coverprofile=coverage.out ./...
+go tool cover -html=coverage.out
+```
+
+---
+
+## Swagger Documentation
+
+Interactive API docs are available at:
+
+```
+http://localhost:8080/swagger
+```
+
+Raw spec files:
+
+```
+http://localhost:8080/swagger/swagger.json
+http://localhost:8080/swagger/swagger.yml
+```
+
+### Generating Swagger docs
+
+Before the first run, generate the docs once:
 
 ```bash
 bee generate docs
 ```
 
-This command updates the generated spec files in `swagger/swagger.json` and `swagger/swagger.yml`.
-These docs are not updated automatically at runtime.
+### Regenerating after controller changes
+
+Swagger docs are generated from annotations in `controllers/*.go`. After modifying or adding any API comments, regenerate and restart:
+
+```bash
+bee generate docs
+bee run
+```
+
+> **Note:** Docs are **not** updated automatically at runtime — you must re-run `bee generate docs` and restart the server for changes to take effect.
+
+---
 
 ## API Reference
 
 ### Authorization
 
-Protected endpoints require the request header:
+Protected endpoints require the following request header:
 
-- `X-User-ID`: numeric user ID
+```
+X-User-ID: <numeric-user-id>
+```
 
-### Endpoints
+### Authentication
 
-#### Health
+**Register**
 
-- `GET /api/v1/health`
+```
+POST /api/v1/auth/register
+Body: { "name": "", "email": "", "password": "" }
+```
 
-#### Authentication
+**Login**
 
-- `POST /api/v1/auth/register`
+```
+POST /api/v1/auth/login
+Body: { "email": "", "password": "" }
+```
 
-  - Body: `name`, `email`, `password`
+### Expenses
 
-- `POST /api/v1/auth/login`
-  - Body: `email`, `password`
+**Create**
 
-#### Expenses
+```
+POST /api/v1/expenses
+Body: { "title": "", "amount": 0, "category": "", "note": "", "expense_date": "" }
+```
 
-- `POST /api/v1/expenses`
+**List** (supports filtering, sorting, pagination)
 
-  - Body: `title`, `amount`, `category`, `note`, `expense_date`
+```
+GET /api/v1/expenses
+Query: category, date_from, date_to, sort_by, sort_order, limit, offset
+```
 
-- `GET /api/v1/expenses`
+**Get by ID**
 
-  - Query: `category`, `date_from`, `date_to`, `sort_by`, `sort_order`, `limit`, `offset`
+```
+GET /api/v1/expenses/{id}
+```
 
-- `GET /api/v1/expenses/{id}`
+**Update**
 
-- `PUT /api/v1/expenses/{id}`
+```
+PUT /api/v1/expenses/{id}
+Body: { "title": "", "amount": 0, "category": "", "note": "", "expense_date": "" }
+```
 
-  - Body: `title`, `amount`, `category`, `note`, `expense_date`
+**Delete**
 
-- `DELETE /api/v1/expenses/{id}`
+```
+DELETE /api/v1/expenses/{id}
+```
 
-- `GET /api/v1/summary`
-  - Query: `date_from`, `date_to`
+**Summary**
+
+```
+GET /api/v1/summary
+Query: date_from, date_to
+```
+
+---
 
 ## Folder Structure
 
@@ -155,44 +291,42 @@ Expense-Tracker-API/
 │   └── app.conf.example
 ├── controllers/
 │   ├── auth.go
+│   ├── auth_test.go
 │   ├── base.go
 │   ├── expense.go
-│   └── health.go
+│   ├── expense_test.go
+│   ├── health.go
+│   └── health_test.go
 ├── data/
 │   ├── expenses.csv
 │   └── users.csv
 ├── middlewares/
-│   └── auth.go
+│   ├── auth.go
+│   └── auth_test.go
 ├── models/
 │   ├── expense.go
-│   └── user.go
+│   ├── expense_test.go
+│   ├── user.go
+│   └── user_test.go
 ├── routers/
-│   └── router.go
+│   ├── router.go
+│   └── router_test.go
 ├── swagger/
 │   ├── index.html
 │   ├── swagger.json
 │   └── swagger.yml
+├── tests/
 ├── go.mod
+├── go.sum
 ├── main.go
 └── README.md
 ```
 
+---
+
 ## Notes
 
-- This implementation uses a simple `X-User-ID` header for authentication.
-- CSV files are created automatically in `data/` when needed.
-- Swagger UI is served from the `/swagger` route.
-- For a production-ready API, replace header auth with token-based authentication and persistent storage.
-
-## New Developer Setup
-
-After cloning the repository, follow these steps:
-
-```bash
-go mod tidy
-go install github.com/beego/bee/v2@latest
-bee generate docs
-go run main.go
-```
-
-Then open `http://localhost:8080/swagger` in your browser.
+- Authentication uses a simple `X-User-ID` header. For production, replace with token-based auth (e.g. JWT).
+- CSV files are created automatically under `data/` on first use.
+- Swagger UI is served from the `/swagger` route and requires `bee generate docs` to stay up to date.
+- For production, replace CSV storage with a proper database.
