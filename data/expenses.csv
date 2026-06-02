@@ -1,11 +1,11 @@
-id, user_id, title                , amount  , category     , note                                                                                                                                      , expense_date, created_at
- 3,       1, New Laptop Monitor   , 18500.00, Shopping     , Office setup upgrade                                                                                                                      , 2026-06-01  , 2026-06-01T11:58:09Z
- 4,       1, Internet Subscription,  1200.00, Utilities    , Monthly fiber bill                                                                                                                        , 2026-06-01  , 2026-06-01T11:58:23Z
- 5,       1, Lunch at Office      ,   250.00, Food         , Daily meal                                                                                                                                , 2026-06-02  , 2026-06-02T04:26:30Z
- 6,       1, Uber/Rickshaw        ,   120.00, Transport    , Office commute                                                                                                                            , 2026-06-02  , 2026-06-02T04:26:39Z
- 7,       1, Netflix Subscription ,   800.00, Entertainment, Monthly bill                                                                                                                              , 2026-06-01  , 2026-06-02T04:27:14Z
- 8,       1, Internet Bill        ,  1200.00, Utilities    , Home broadband                                                                                                                            , 2026-06-01  , 2026-06-02T04:27:44Z
- 9,       1, Shopping             ,  5000.00, Shopping     , This is a very long note meant to test if the CSV parser handles large strings correctly or if it breaks the column alignment in the file., 2026-06-02  , 2026-06-02T04:28:18Z
+id,user_id,title,amount,category,note,expense_date,created_at
+3,1,New Laptop Monitor,18500.00,Shopping,Office setup upgrade,2026-06-01,2026-06-01T11:58:09Z
+4,1,Internet Subscription,1200.00,Utilities,Monthly fiber bill,2026-06-01,2026-06-01T11:58:23Z
+5,1,Lunch at Office,250.00,Food,Daily meal,2026-06-02,2026-06-02T04:26:30Z
+6,1,Uber/Rickshaw,120.00,Transport,Office commute,2026-06-02,2026-06-02T04:26:39Z
+7,1,Netflix Subscription,800.00,Entertainment,Monthly bill,2026-06-01,2026-06-02T04:27:14Z
+8,1,Internet Bill,1200.00,Utilities,Home broadband,2026-06-01,2026-06-02T04:27:44Z
+9,1,Shopping,5000.00,Shopping,This is a very long note meant to test if the CSV parser handles large strings correctly or if it breaks the column alignment in the file.,2026-06-02,2026-06-02T04:28:18Z
 10,1,Internet Subscription,1200.00,Utilities,Monthly fiber bill,2026-06-01,2026-06-02T07:02:57Z
 11,1,Internet Subscription,1200.00,Utilities,Monthly fiber bill,2026-06-01,2026-06-02T07:04:03Z
 12,2,Internet Subscription,1200.00,Utilities,Monthly fiber bill,2026-06-01,2026-06-02T07:13:00Z

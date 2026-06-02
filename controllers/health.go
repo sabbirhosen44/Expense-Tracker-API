@@ -4,7 +4,13 @@ type HealthController struct {
 	BaseController
 }
 
-// Get sends a 200 OK response to show the server is alive.
+// @Summary Health Check
+// @Description Check API status
+// @Tags Health
+// @Accept json
+// @Produce json
+// @Success 200 {object} controllers.APIResponse
+// @router /health [get]
 func (c *HealthController) GetHealthStatus() {
 	c.respondOK("Server is running!", nil)
 }

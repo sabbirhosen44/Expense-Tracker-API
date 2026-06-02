@@ -69,6 +69,17 @@ func validateExpenseInput(input expenseInput) string {
 	return ""
 }
 
+// @Summary Create a new expense
+// @Description Create a new expense for the authenticated user
+// @Tags Expenses
+// @Accept json
+// @Produce json
+// @Param X-User-ID header int true "User ID"
+// @Param body body controllers.expenseInput true "Expense payload"
+// @Success 201 {object} controllers.APIResponse
+// @Failure 400 {object} controllers.APIResponse
+// @Failure 401 {object} controllers.APIResponse
+// @router / [post]
 func (c *ExpenseController) CreateExpense() {
 	// Retrieve userID injected by the middleware
 	userID := c.Ctx.Input.GetData("userID").(int)
@@ -102,6 +113,23 @@ func (c *ExpenseController) CreateExpense() {
 	c.respondCreated("Expense created successfully", toExpenseResponse(*expense))
 }
 
+// @Summary List expenses
+// @Description Get a paginated list of expenses for the authenticated user
+// @Tags Expenses
+// @Accept json
+// @Produce json
+// @Param X-User-ID header int true "User ID"
+// @Param category query string false "Category"
+// @Param date_from query string false "Date from (YYYY-MM-DD)"
+// @Param date_to query string false "Date to (YYYY-MM-DD)"
+// @Param sort_by query string false "Sort by field"
+// @Param sort_order query string false "Sort order"
+// @Param limit query int false "Limit"
+// @Param offset query int false "Offset"
+// @Success 200 {object} controllers.APIResponse
+// @Failure 400 {object} controllers.APIResponse
+// @Failure 401 {object} controllers.APIResponse
+// @router / [get]
 func (c *ExpenseController) ListExpenses() {
 	userID := c.Ctx.Input.GetData("userID").(int)
 	if userID == 0 {
@@ -170,6 +198,18 @@ func (c *ExpenseController) ListExpenses() {
 	c.respondOK("Expenses retrieved", result)
 }
 
+// @Summary Get expense by ID
+// @Description Retrieve a specific expense owned by the authenticated user
+// @Tags Expenses
+// @Accept json
+// @Produce json
+// @Param X-User-ID header int true "User ID"
+// @Param id path int true "Expense ID"
+// @Success 200 {object} controllers.APIResponse
+// @Failure 400 {object} controllers.APIResponse
+// @Failure 401 {object} controllers.APIResponse
+// @Failure 404 {object} controllers.APIResponse
+// @router /:id [get]
 func (c *ExpenseController) GetExpense() {
 	userID := c.Ctx.Input.GetData("userID").(int)
 	if userID == 0 {
@@ -197,6 +237,19 @@ func (c *ExpenseController) GetExpense() {
 	c.respondOK("Expense retrieved", toExpenseResponse(*expense))
 }
 
+// @Summary Update an expense
+// @Description Update an existing expense owned by the authenticated user
+// @Tags Expenses
+// @Accept json
+// @Produce json
+// @Param X-User-ID header int true "User ID"
+// @Param id path int true "Expense ID"
+// @Param body body controllers.expenseInput true "Expense payload"
+// @Success 200 {object} controllers.APIResponse
+// @Failure 400 {object} controllers.APIResponse
+// @Failure 401 {object} controllers.APIResponse
+// @Failure 404 {object} controllers.APIResponse
+// @router /:id [put]
 func (c *ExpenseController) UpdateExpense() {
 	userID := c.Ctx.Input.GetData("userID").(int)
 	if userID == 0 {
@@ -253,6 +306,18 @@ func (c *ExpenseController) UpdateExpense() {
 	c.respondOK("Expense updated successfully", toExpenseResponse(*updated))
 }
 
+// @Summary Delete an expense
+// @Description Delete a specific expense owned by the authenticated user
+// @Tags Expenses
+// @Accept json
+// @Produce json
+// @Param X-User-ID header int true "User ID"
+// @Param id path int true "Expense ID"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @router /:id [delete]
 func (c *ExpenseController) DeleteExpense() {
 	userID := c.Ctx.Input.GetData("userID").(int)
 	if userID == 0 {
@@ -288,6 +353,18 @@ func (c *ExpenseController) DeleteExpense() {
 	c.respondOK("Expense deleted successfully", nil)
 }
 
+// @Summary Get expense summary
+// @Description Get a spending summary grouped by category for a date range
+// @Tags Expenses
+// @Accept json
+// @Produce json
+// @Param X-User-ID header int true "User ID"
+// @Param date_from query string false "Date from (YYYY-MM-DD)"
+// @Param date_to query string false "Date to (YYYY-MM-DD)"
+// @Success 200 {object} controllers.APIResponse
+// @Failure 400 {object} controllers.APIResponse
+// @Failure 401 {object} controllers.APIResponse
+// @router /summary [get]
 func (c *ExpenseController) GetSummary() {
 	userID := c.Ctx.Input.GetData("userID").(int)
 	if userID == 0 {

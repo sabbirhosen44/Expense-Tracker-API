@@ -27,7 +27,16 @@ type loginInput struct {
 // Regex For Email Validation
 var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
 
-// Register Function
+// @Summary Register
+// @Description Register a new user
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body controllers.registerInput true "Register info"
+// @Success 201 {object} controllers.APIResponse
+// @Failure 400 {object} controllers.APIResponse
+// @Failure 409 {object} controllers.APIResponse
+// @router /register [post]
 func (c *AuthController) Register() {
 	var input registerInput
 
@@ -102,6 +111,16 @@ func (c *AuthController) Register() {
 
 }
 
+// @Summary Login
+// @Description Authenticate user and get details
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body controllers.loginInput true "Login info"
+// @Success 200 {object} controllers.APIResponse
+// @Failure 400 {object} controllers.APIResponse
+// @Failure 401 {object} controllers.APIResponse
+// @router /login [post]
 func (c *AuthController) Login() {
 	var input loginInput
 
